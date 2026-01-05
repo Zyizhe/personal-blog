@@ -71,7 +71,7 @@ export default async function AboutPage() {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                  {authors.length}
+                  {authors?.length}
                 </div>
                 <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">作者</div>
               </div>

@@ -9,6 +9,7 @@ specifiers:
   eslint: ^9
   eslint-config-next: 16.0.3
   next: 16.1.1
+  nextjs: 'link:'
   react: 19.2.0
   react-dom: 19.2.0
   react-markdown: ^9.0.1
@@ -21,6 +22,7 @@ specifiers:
 dependencies:
   '@supabase/supabase-js': 2.89.0
   next: 16.1.1_lh6yjnbmlemn4t264xkzt2k63q
+  nextjs: 'link:'
   react: 19.2.0
   react-dom: 19.2.0_react@19.2.0
   react-markdown: 9.1.0_d3lajoe3dbhofn2e5gjswiz74q
