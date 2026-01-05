@@ -17,8 +17,7 @@ export default async function AboutPage() {
   ]);
 
   // 获取作者列表
-  const { data: authors } = await supabase.from('authors').select('*');
-
+  const { data: authors = [] } = await supabase.from('authors').select('*');
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -71,7 +70,7 @@ export default async function AboutPage() {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                  {authors?.length}
+                  {(authors || []).length}
                 </div>
                 <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">作者</div>
               </div>
