@@ -1,4 +1,4 @@
-import { posts } from '@/lib/mock-data';
+import { getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import SearchBar from '@/components/SearchBar';
 
@@ -7,7 +7,10 @@ export const metadata = {
   description: '欢迎来到我的博客，这里分享前端开发、后端开发、全栈开发等技术文章',
 };
 
-export default function Home() {
+export const revalidate = 60; // 每60秒重新验证数据
+
+export default async function Home() {
+  const posts = await getPosts();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">

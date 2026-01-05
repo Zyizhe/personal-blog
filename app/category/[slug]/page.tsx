@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getCategoryBySlug, getPostsByCategory } from '@/lib/mock-data';
+import { getCategoryBySlug, getPostsByCategory, getCategories } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import type { Metadata } from 'next';
 
@@ -8,9 +8,17 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// 生成静态参数
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    slug: category.slug,
+  }));
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     return {
@@ -26,13 +34,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
   }
 
-  const posts = getPostsByCategory(slug);
+  const posts = await getPostsByCategory(slug);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

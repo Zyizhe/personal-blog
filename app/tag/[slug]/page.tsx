@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTagBySlug, getPostsByTag } from '@/lib/mock-data';
+import { getTagBySlug, getPostsByTag, getTags } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import type { Metadata } from 'next';
 
@@ -8,9 +8,17 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// 生成静态参数
+export async function generateStaticParams() {
+  const tags = await getTags();
+  return tags.map((tag) => ({
+    slug: tag.slug,
+  }));
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const tag = getTagBySlug(slug);
+  const tag = await getTagBySlug(slug);
 
   if (!tag) {
     return {
@@ -26,13 +34,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TagPage({ params }: PageProps) {
   const { slug } = await params;
-  const tag = getTagBySlug(slug);
+  const tag = await getTagBySlug(slug);
 
   if (!tag) {
     notFound();
   }
 
-  const posts = getPostsByTag(slug);
+  const posts = await getPostsByTag(slug);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

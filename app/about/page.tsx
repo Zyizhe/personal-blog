@@ -1,4 +1,5 @@
-import { authors, categories, tags, posts } from '@/lib/mock-data';
+import { getPosts, getCategories, getTags } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 
 export const metadata = {
@@ -6,7 +7,19 @@ export const metadata = {
   description: '关于这个博客项目的介绍',
 };
 
-export default function AboutPage() {
+export const revalidate = 60; // 每60秒重新验证数据
+
+export default async function AboutPage() {
+  const [posts, categories, tags] = await Promise.all([
+    getPosts(),
+    getCategories(),
+    getTags(),
+  ]);
+
+  // 获取作者列表
+  const { data: authors } = await supabase.from('authors').select('*');
+
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -66,35 +79,37 @@ export default function AboutPage() {
           </section>
 
           {/* 作者列表 */}
-          <section className="rounded-lg bg-white p-6 dark:bg-gray-800">
-            <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">作者</h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              {authors.map((author) => (
-                <div
-                  key={author.id}
-                  className="flex flex-col items-center rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-                >
-                  <Image
-                    src={author.avatar}
-                    alt={author.name}
-                    width={80}
-                    height={80}
-                    className="mb-3 rounded-full"
-                  />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{author.name}</h3>
-                  <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    {author.bio}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+          {authors && authors.length > 0 && (
+            <section className="rounded-lg bg-white p-6 dark:bg-gray-800">
+              <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">作者</h2>
+              <div className="grid gap-4 md:grid-cols-3">
+                {authors.map((author) => (
+                  <div
+                    key={author.id}
+                    className="flex flex-col items-center rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                  >
+                    <Image
+                      src={author.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}
+                      alt={author.name}
+                      width={80}
+                      height={80}
+                      className="mb-3 rounded-full"
+                    />
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{author.name}</h3>
+                    <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                      {author.bio}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* 技术栈 */}
           <section className="rounded-lg bg-white p-6 dark:bg-gray-800">
             <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">技术栈</h2>
             <div className="flex flex-wrap gap-2">
-              {['Next.js 16', 'React 19', 'TypeScript', 'Tailwind CSS', 'App Router'].map(
+              {['Next.js 16', 'React 19', 'TypeScript', 'Tailwind CSS', 'Supabase', 'PostgreSQL'].map(
                 (tech) => (
                   <span
                     key={tech}

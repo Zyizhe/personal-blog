@@ -1,13 +1,13 @@
 import { Suspense } from 'react';
-import { searchPosts } from '@/lib/mock-data';
+import { searchPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 
 interface PageProps {
   searchParams: Promise<{ q?: string }>;
 }
 
-function SearchResults({ query }: { query: string }) {
-  const results = searchPosts(query);
+async function SearchResults({ query }: { query: string }) {
+  const results = await searchPosts(query);
 
   return (
     <div>

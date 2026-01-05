@@ -39,11 +39,12 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Image
-                src={post.author.avatar}
+                src={post.author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(post.author.name) + '&background=3b82f6&color=fff'}
                 alt={post.author.name}
                 width={32}
                 height={32}
                 className="rounded-full"
+                unoptimized
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {post.author.name}

@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getPostBySlug, posts } from '@/lib/mock-data';
+import { getPostBySlug, getPosts, getPostsByCategory } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import MarkdownContent from '@/components/MarkdownContent';
+import ViewCounter from '@/components/ViewCounter';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -12,6 +13,7 @@ interface PageProps {
 
 // 生成静态参数
 export async function generateStaticParams() {
+  const posts = await getPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -20,7 +22,7 @@ export async function generateStaticParams() {
 // 生成元数据
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return {
@@ -46,11 +48,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
+
+  // 获取相关文章
+  const relatedPosts = await getPostsByCategory(post.category.slug);
 
   return (
     <article className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -95,11 +100,12 @@ export default async function PostPage({ params }: PageProps) {
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <Image
-                src={post.author.avatar}
+                src={post.author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(post.author.name) + '&background=3b82f6&color=fff'}
                 alt={post.author.name}
                 width={40}
                 height={40}
                 className="rounded-full"
+                unoptimized
               />
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">
@@ -113,7 +119,7 @@ export default async function PostPage({ params }: PageProps) {
               <span>•</span>
               <span>{post.readTime} 分钟阅读</span>
               <span>•</span>
-              <span>{post.views} 次浏览</span>
+              <ViewCounter slug={post.slug} initialViews={post.views} />
             </div>
           </div>
         </header>
@@ -155,8 +161,8 @@ export default async function PostPage({ params }: PageProps) {
             相关文章
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
-            {posts
-              .filter((p) => p.id !== post.id && p.category.id === post.category.id)
+            {relatedPosts
+              .filter((p) => p.id !== post.id)
               .slice(0, 2)
               .map((relatedPost) => (
                 <Link
