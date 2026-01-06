@@ -3,20 +3,28 @@ import type { Post, Author, Category, Tag } from './mock-data';
 
 // 获取所有文章
 export async function getPosts(): Promise<Post[]> {
-  const { data, error } = await supabase
-    .from('posts')
-    .select(`
-      *,
-      author:authors(*),
-      category:categories(*),
-      tags:post_tags(tag:tags(*))
-    `)
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        author:authors(*),
+        category:categories(*),
+        tags:post_tags(tag:tags(*))
+      `)
+      .eq('is_published', true)
+      .order('published_at', { ascending: false });
 
-  if (error) throw error;
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
 
-  return data.map(transformPost);
+    return data ? data.map(transformPost) : [];
+  } catch (error) {
+    console.error('Failed to fetch posts:', error);
+    return [];
+  }
 }
 
 // 根据 slug 获取文章
