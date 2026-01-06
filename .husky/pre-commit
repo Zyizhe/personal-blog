@@ -1,10 +1,21 @@
+#!/bin/sh
 echo "🔍 Running pre-commit checks..."
 
 # Run lint-staged
+echo "📋 Running lint-staged..."
 npx lint-staged
+if [ $? -ne 0 ]; then
+  echo "❌ Lint-staged failed"
+  exit 1
+fi
 
-# Run type check
+# Run type check (excluding .next folder)
 echo "📝 Type checking..."
 npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ Type check failed"
+  echo "💡 Tip: If you see errors in .next folder, try: rm -rf .next"
+  exit 1
+fi
 
 echo "✅ Pre-commit checks passed!"

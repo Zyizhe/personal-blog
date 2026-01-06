@@ -5,6 +5,7 @@ import { getPostBySlug, getPosts, getPostsByCategory } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import MarkdownContent from '@/components/MarkdownContent';
 import ViewCounter from '@/components/ViewCounter';
+import EditPostButton from '@/components/EditPostButton';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -14,7 +15,7 @@ interface PageProps {
 // 生成静态参数
 export async function generateStaticParams() {
   const posts = await getPosts();
-  return posts.map((post) => ({
+  return posts.map(post => ({
     slug: post.slug,
   }));
 }
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       authors: [post.author.name],
-      tags: post.tags.map((tag) => tag.name),
+      tags: post.tags.map(tag => tag.name),
     },
   };
 }
@@ -60,26 +61,26 @@ export default async function PostPage({ params }: PageProps) {
   return (
     <article className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        {/* 返回按钮 */}
-        <Link
-          href="/"
-          className="mb-6 inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-          <svg
-            className="mr-2 h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* 顶部导航栏 */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          返回首页
-        </Link>
+            <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            返回首页
+          </Link>
+
+          {/* 编辑按钮 - 只有作者可见 */}
+          <EditPostButton postId={post.id} authorId={post.author.id} />
+        </div>
 
         {/* 文章头部 */}
         <header className="mb-8">
@@ -91,16 +92,19 @@ export default async function PostPage({ params }: PageProps) {
               {post.category.name}
             </Link>
           </div>
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
-            {post.title}
-          </h1>
+          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">{post.title}</h1>
           <p className="mb-6 text-xl text-gray-600 dark:text-gray-400">{post.excerpt}</p>
 
           {/* 文章元信息 */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <Image
-                src={post.author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(post.author.name) + '&background=3b82f6&color=fff'}
+                src={
+                  post.author.avatar ||
+                  'https://ui-avatars.com/api/?name=' +
+                    encodeURIComponent(post.author.name) +
+                    '&background=3b82f6&color=fff'
+                }
                 alt={post.author.name}
                 width={40}
                 height={40}
@@ -108,9 +112,7 @@ export default async function PostPage({ params }: PageProps) {
                 unoptimized
               />
               <div>
-                <div className="font-medium text-gray-900 dark:text-white">
-                  {post.author.name}
-                </div>
+                <div className="font-medium text-gray-900 dark:text-white">{post.author.name}</div>
                 <div className="text-xs">{post.author.bio}</div>
               </div>
             </div>
@@ -125,16 +127,43 @@ export default async function PostPage({ params }: PageProps) {
         </header>
 
         {/* 封面图片 */}
-        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
-          <Image
-            src={post.coverImage}
-            alt={post.title}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
-          />
-        </div>
+        {post.coverImage ? (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
+              unoptimized
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        ) : (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+              <div className="rounded-full bg-white/90 p-6 shadow-lg dark:bg-gray-900/90">
+                <svg
+                  className="h-16 w-16 text-blue-500 dark:text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+                此文章暂无封面图片
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 文章内容 */}
         <MarkdownContent content={post.content} />
@@ -143,7 +172,7 @@ export default async function PostPage({ params }: PageProps) {
         <div className="mt-8 border-t border-gray-200 pt-6 dark:border-gray-700">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">标签</h3>
           <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
+            {post.tags.map(tag => (
               <Link
                 key={tag.id}
                 href={`/tag/${tag.slug}`}
@@ -157,14 +186,12 @@ export default async function PostPage({ params }: PageProps) {
 
         {/* 相关文章推荐 */}
         <div className="mt-12 border-t border-gray-200 pt-8 dark:border-gray-700">
-          <h3 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            相关文章
-          </h3>
+          <h3 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">相关文章</h3>
           <div className="grid gap-4 md:grid-cols-2">
             {relatedPosts
-              .filter((p) => p.id !== post.id)
+              .filter(p => p.id !== post.id)
               .slice(0, 2)
-              .map((relatedPost) => (
+              .map(relatedPost => (
                 <Link
                   key={relatedPost.id}
                   href={`/posts/${relatedPost.slug}`}
@@ -184,4 +211,3 @@ export default async function PostPage({ params }: PageProps) {
     </article>
   );
 }
-

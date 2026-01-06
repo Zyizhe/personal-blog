@@ -13,15 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'developer.qcloudimg.com',
-      },
-      {
-        protocol: 'https',
         hostname: '*.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
       },
       {
         protocol: 'https',
@@ -46,6 +38,10 @@ const nextConfig: NextConfig = {
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer',
           },
         ],
       },
