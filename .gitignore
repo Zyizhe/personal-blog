@@ -40,18 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# AI generated documentation files
-ARCHITECTURE.md
-CHANGES_SUMMARY.md
-CHECKLIST.md
-DATA_MIGRATION_COMPLETE.md
-DOCUMENTATION_INDEX.md
-FIXES_APPLIED.md
-INSTALL_FIXES.md
-LOGIN_SETUP.md
-PROJECT_COMPLETION_REPORT.md
-PROJECT_OVERVIEW.md
-QUICK_START.md
-SUPABASE_SETUP.md
-TODO.md
-SAFARI_MOBILE_FIX.md
+# Markdown files (except README.md)
+*.md
+!README.md
+
+# SQL files (database scripts)
+*.sql
+
+# Shell scripts (except specific ones if needed)
+*.sh
+# !deploy.sh  # 如果需要保留某些脚本，取消注释
